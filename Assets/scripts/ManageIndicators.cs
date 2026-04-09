@@ -13,10 +13,9 @@ public class UIManager : MonoBehaviour
 
     void Update()
     {
-        // Revisamos que el script de vida esté conectado y actualizamos el texto
+        // Se valida el script de vida y actualizamos el texto
         if (playerHealth != null && textoVida != null)
         {
-            // .ToString() convierte el número de la vida en texto visible
             textoVida.text = playerHealth.currentHealth.ToString();
         }
 
