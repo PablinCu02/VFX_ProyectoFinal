@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement; // LIBRERÍA NECESARIA PARA REINICIAR
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -6,36 +7,71 @@ public class PlayerHealth : MonoBehaviour
     public float maxHealth = 100f;
     public float currentHealth;
 
+    [Header("Puntos de Aparición (Spawns)")]
+    public Transform spawnEstomago;
+    public Transform spawnIntestino;
+
+    [Header("Configuración de Daño")]
+    public float acidDamage = 20f;
+
     void Start()
     {
-        // Al iniciar, el jugador tiene la vida al máximo
         currentHealth = maxHealth;
     }
 
-    // Esta función será llamada por los botiquines
     public void Heal(float amount)
     {
         currentHealth += amount;
-
-        // Evitamos que la vida supere el máximo permitido
-        if (currentHealth > maxHealth)
-        {
-            currentHealth = maxHealth;
-        }
-
-        Debug.Log("¡Botiquín recogido! Vida actual: " + currentHealth);
+        currentHealth = Mathf.Min(currentHealth, maxHealth);
+        Debug.Log("Vida actual: " + currentHealth);
     }
+
     public void TakeDamage(float damageAmount)
     {
         currentHealth -= damageAmount;
-        Debug.Log("¡El virus te atacó! Vida restante: " + currentHealth);
+        Debug.Log("¡Daño! Vida restante: " + currentHealth);
 
-        // Comprobamos si la vida se agotó
+        // COMPROBACIÓN DE MUERTE
         if (currentHealth <= 0)
         {
             currentHealth = 0;
-            Debug.Log("¡El jugador ha sido infectado/eliminado!");
-            // PENDIENTE LOGICA DE GAME OVER
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        Debug.Log("¡El jugador ha muerto! Reiniciando nivel...");
+
+        // Obtiene el nombre de la escena actual y la vuelve a cargar
+        Scene escenaActual = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(escenaActual.name);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("AcidEstomago"))
+        {
+            TakeDamage(acidDamage);
+            if (currentHealth > 0) Respawn(spawnEstomago);
+        }
+        else if (other.CompareTag("AcidIntestino"))
+        {
+            TakeDamage(acidDamage);
+            if (currentHealth > 0) Respawn(spawnIntestino);
+        }
+    }
+
+    void Respawn(Transform puntoSeguro)
+    {
+        if (puntoSeguro != null)
+        {
+            CharacterController cc = GetComponent<CharacterController>();
+            if (cc != null) cc.enabled = false;
+
+            transform.position = puntoSeguro.position;
+
+            if (cc != null) cc.enabled = true;
         }
     }
 }
