@@ -1,18 +1,24 @@
 using UnityEngine;
-using System.Collections;
+using UnityEngine.AI; // IMPORTANTE: Para usar NavMeshAgent
 
 public class EnemyLogics : MonoBehaviour
 {
-    [Header("Salud y Efectos del Enemigo")]
+    [Header("Configuración de AI")]
+    public Transform player; // Arrastra el objeto Player aquí
+    public float attackRange = 1.5f;
+
+    private NavMeshAgent agent;
+    private Animator anim;
+
+    [Header("Salud y Efectos")]
     public float health = 50f;
     public Color damageColor = Color.red;
     public float flashDuration = 0.15f;
 
-    [Header("Ataque al Jugador")]
+    [Header("Ataque")]
     public float damageToPlayer = 20f;
-    // --- NUEVO: Variables para el "delay" (Cooldown) ---
-    public float attackRate = 2.0f; // Segundos que tarda en volver a morder
-    private float nextAttackTime = 0f; // El cronómetro interno del virus
+    public float attackRate = 2.0f;
+    private float nextAttackTime = 0f;
 
     private Renderer myRenderer;
     private Color originalColor;
@@ -20,30 +26,62 @@ public class EnemyLogics : MonoBehaviour
 
     void Start()
     {
+        agent = GetComponent<NavMeshAgent>();
+        anim = GetComponent<Animator>(); // Obtenemos el Animator
         myRenderer = GetComponentInChildren<Renderer>();
-        if (myRenderer != null)
+
+        if (myRenderer != null) originalColor = myRenderer.material.color;
+
+        // Buscar al jugador automáticamente si no está asignado
+        if (player == null) player = GameObject.FindGameObjectWithTag("Player").transform;
+    }
+
+    void Update()
+    {
+        if (player == null) return;
+
+        float distance = Vector3.Distance(transform.position, player.position);
+
+        // LÓGICA DE ESTADOS
+        if (distance <= attackRange)
         {
-            originalColor = myRenderer.material.color;
+            // ESTADO: ATACAR
+            agent.isStopped = true; // Detener movimiento
+            anim.SetFloat("Speed", 0f); // Animación Idle
+            anim.SetBool("isAttacking", true); // Activar ataque
+
+            // Intentar infligir daño
+            if (Time.time >= nextAttackTime)
+            {
+                PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+                if (playerHealth != null)
+                {
+                    playerHealth.TakeDamage(damageToPlayer);
+                    nextAttackTime = Time.time + attackRate;
+                }
+            }
+        }
+        else
+        {
+            // ESTADO: CAMINAR / SEGUIR
+            agent.isStopped = false;
+            agent.SetDestination(player.position);
+
+            // Enviamos la velocidad al Animator (usamos .magnitude para obtener un valor positivo)
+            anim.SetFloat("Speed", agent.velocity.magnitude);
+            anim.SetBool("isAttacking", false);
         }
     }
 
+    // Mantenemos tus funciones originales de daño
     public void TakeDamage(float amount)
     {
         health -= amount;
-        Debug.Log("Vida restante del enemigo: " + health);
-
-        if (!isFlashing && myRenderer != null)
-        {
-            StartCoroutine(FlashRed());
-        }
-
-        if (health <= 0f)
-        {
-            Die();
-        }
+        if (!isFlashing && myRenderer != null) StartCoroutine(FlashRed());
+        if (health <= 0f) Die();
     }
 
-    IEnumerator FlashRed()
+    System.Collections.IEnumerator FlashRed()
     {
         isFlashing = true;
         myRenderer.material.color = damageColor;
@@ -54,41 +92,8 @@ public class EnemyLogics : MonoBehaviour
 
     void Die()
     {
-        Debug.Log("Enemigo eliminado");
-        Destroy(gameObject);
-    }
-
-    // --- ACTUALIZADO: Detección física si chocan los cuerpos sólidos ---
-    void OnCollisionStay(Collision collision)
-    {
-        // Verificamos si es el jugador Y si ya pasó el tiempo de delay
-        if (collision.gameObject.CompareTag("Player") && Time.time >= nextAttackTime)
-        {
-            PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
-
-            if (playerHealth != null)
-            {
-                playerHealth.TakeDamage(damageToPlayer);
-                // Reiniciamos el cronómetro para el siguiente ataque
-                nextAttackTime = Time.time + attackRate;
-            }
-        }
-    }
-
-    // --- ACTUALIZADO: Detección por el Hitbox (La esfera invisible) ---
-    void OnTriggerStay(Collider other)
-    {
-        // Verificamos si es el jugador Y si ya pasó el tiempo de delay
-        if (other.CompareTag("Player") && Time.time >= nextAttackTime)
-        {
-            PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
-
-            if (playerHealth != null)
-            {
-                playerHealth.TakeDamage(damageToPlayer);
-                // Reiniciamos el cronómetro para el siguiente ataque
-                nextAttackTime = Time.time + attackRate;
-            }
-        }
+        anim.SetTrigger("Die"); // Asumiendo que tienes una animación de muerte
+        agent.enabled = false;
+        Destroy(gameObject, 2f);
     }
 }
