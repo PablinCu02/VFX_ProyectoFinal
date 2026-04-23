@@ -10,15 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalScale.x
-      value: 3.5664978
+      value: 2.0218477
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalScale.y
-      value: 3.5664978
+      value: 2.0218477
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalScale.z
-      value: 3.5664978
+      value: 2.0218477
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalPosition.x
@@ -26,11 +26,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 9.03
+      value: 5.53
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 229.16
+      value: 229.05
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalRotation.w
@@ -85,6 +85,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1567138792464699462}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1191067206786725463}
     - targetCorrespondingSourceObject: {fileID: 8052677790429725804, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1885190210669015376}
@@ -154,11 +157,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c776dc51daad3ba40beff90b13d54800, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyLogics
+  player: {fileID: 0}
+  detectionRange: 30
+  attackRange: 8.54
+  patrolPoints: []
+  waitTimeAtPoint: 2
   health: 50
   damageColor: {r: 1, g: 0, b: 0, a: 1}
   flashDuration: 0.15
   damageToPlayer: 20
   attackRate: 2
+--- !u!195 &1191067206786725463
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3116817908027901590}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &5206331900039577515 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8052677790429725804, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}

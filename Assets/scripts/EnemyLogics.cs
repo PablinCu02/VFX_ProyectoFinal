@@ -1,12 +1,11 @@
 using UnityEngine;
-using UnityEngine.AI; // IMPORTANTE: Para usar NavMeshAgent
+using UnityEngine.AI;
 
 public class EnemyLogics : MonoBehaviour
 {
     [Header("Configuración de AI")]
-    public Transform player; // Arrastra el objeto Player aquí
+    public Transform player;
     public float attackRange = 1.5f;
-
     private NavMeshAgent agent;
     private Animator anim;
 
@@ -27,30 +26,27 @@ public class EnemyLogics : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        anim = GetComponent<Animator>(); // Obtenemos el Animator
+        anim = GetComponent<Animator>();
         myRenderer = GetComponentInChildren<Renderer>();
 
         if (myRenderer != null) originalColor = myRenderer.material.color;
 
-        // Buscar al jugador automáticamente si no está asignado
         if (player == null) player = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
     void Update()
     {
-        if (player == null) return;
+        if (agent == null || !agent.enabled || player == null) return;
 
         float distance = Vector3.Distance(transform.position, player.position);
 
-        // LÓGICA DE ESTADOS
         if (distance <= attackRange)
         {
             // ESTADO: ATACAR
-            agent.isStopped = true; // Detener movimiento
-            anim.SetFloat("Speed", 0f); // Animación Idle
-            anim.SetBool("isAttacking", true); // Activar ataque
+            agent.isStopped = true;
+            anim.SetFloat("Speed", 0f);
+            anim.SetBool("isAttacking", true);
 
-            // Intentar infligir daño
             if (Time.time >= nextAttackTime)
             {
                 PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
@@ -63,17 +59,15 @@ public class EnemyLogics : MonoBehaviour
         }
         else
         {
-            // ESTADO: CAMINAR / SEGUIR
+            // ESTADO: PERSEGUIR
             agent.isStopped = false;
             agent.SetDestination(player.position);
 
-            // Enviamos la velocidad al Animator (usamos .magnitude para obtener un valor positivo)
             anim.SetFloat("Speed", agent.velocity.magnitude);
             anim.SetBool("isAttacking", false);
         }
     }
 
-    // Mantenemos tus funciones originales de daño
     public void TakeDamage(float amount)
     {
         health -= amount;
@@ -92,7 +86,7 @@ public class EnemyLogics : MonoBehaviour
 
     void Die()
     {
-        anim.SetTrigger("Die"); // Asumiendo que tienes una animación de muerte
+        anim.SetTrigger("Die");
         agent.enabled = false;
         Destroy(gameObject, 2f);
     }
