@@ -15,6 +15,9 @@ public class ProjectileGun : MonoBehaviour
     public int maxAmmo = 15; // Límite máximo de balas 
     public int currentAmmo;  //Variable para balas actuales
 
+    [Header("Sonidos")]
+    public AudioSource sonidoDisparo; //Sonido de disparo
+
     void Start()
     {
         // Munición completa al iniciar el juego
@@ -38,6 +41,11 @@ public class ProjectileGun : MonoBehaviour
     {
         Debug.Log("¡Disparo realizado! Balas restantes: " + (currentAmmo - 1));
         currentAmmo--; // Se disminuye la munición al disparar
+
+        if (sonidoDisparo != null)
+        {
+            sonidoDisparo.Play(); // Reproducimos el sonido de disparo
+        }
 
         // 1. Creamos la bala en la posición y rotación del firePoint
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
