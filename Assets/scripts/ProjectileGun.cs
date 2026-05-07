@@ -26,6 +26,7 @@ public class ProjectileGun : MonoBehaviour
 
     void Update()
     {
+        if(Time.timeScale == 0f) return; // Evitamos disparar si el juego está pausado
         if (Input.GetButtonDown("Fire1") && Time.time >= nextTimeToFire && currentAmmo > 0)
         {
             nextTimeToFire = Time.time + fireRate;
