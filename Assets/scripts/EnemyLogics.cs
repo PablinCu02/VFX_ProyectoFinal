@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
 
 public class EnemyLogics : MonoBehaviour
 {
@@ -14,6 +15,11 @@ public class EnemyLogics : MonoBehaviour
     public Color damageColor = Color.red;
     public float flashDuration = 0.15f;
 
+    [Header("Efectos de Muerte (Gelatina)")]
+    public GameObject deathParticlesPrefab; // El sistema de partículas
+    public GameObject smallEnemyPrefab;    // El enemigo pequeño que nacerá
+    public int amountOfSmallEnemies = 2;    // Cuántos mini-slimes salen
+
     [Header("Ataque")]
     public float damageToPlayer = 20f;
     public float attackRate = 2.0f;
@@ -22,6 +28,7 @@ public class EnemyLogics : MonoBehaviour
     private Renderer myRenderer;
     private Color originalColor;
     private bool isFlashing = false;
+    private bool isDead = false; // Nueva bandera para evitar bugs en la muerte
 
     void Start()
     {
@@ -30,19 +37,17 @@ public class EnemyLogics : MonoBehaviour
         myRenderer = GetComponentInChildren<Renderer>();
 
         if (myRenderer != null) originalColor = myRenderer.material.color;
-
-        if (player == null) player = GameObject.FindGameObjectWithTag("Player").transform;
+        if (player == null) player = GameObject.FindGameObjectWithTag("Player")?.transform;
     }
 
     void Update()
     {
-        if (agent == null || !agent.enabled || player == null) return;
+        if (isDead || agent == null || !agent.enabled || player == null) return;
 
         float distance = Vector3.Distance(transform.position, player.position);
 
         if (distance <= attackRange)
         {
-            // ESTADO: ATACAR
             agent.isStopped = true;
             anim.SetFloat("Speed", 0f);
             anim.SetBool("isAttacking", true);
@@ -59,10 +64,8 @@ public class EnemyLogics : MonoBehaviour
         }
         else
         {
-            // ESTADO: PERSEGUIR
             agent.isStopped = false;
             agent.SetDestination(player.position);
-
             anim.SetFloat("Speed", agent.velocity.magnitude);
             anim.SetBool("isAttacking", false);
         }
@@ -70,12 +73,13 @@ public class EnemyLogics : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
+        if (isDead) return;
         health -= amount;
         if (!isFlashing && myRenderer != null) StartCoroutine(FlashRed());
         if (health <= 0f) Die();
     }
 
-    System.Collections.IEnumerator FlashRed()
+    IEnumerator FlashRed()
     {
         isFlashing = true;
         myRenderer.material.color = damageColor;
@@ -86,8 +90,39 @@ public class EnemyLogics : MonoBehaviour
 
     void Die()
     {
+        isDead = true;
         anim.SetTrigger("Die");
         agent.enabled = false;
-        Destroy(gameObject, 2f);
+
+        // 1. Instanciar partículas de gelatina
+        if (deathParticlesPrefab != null)
+        {
+            Instantiate(deathParticlesPrefab, transform.position + Vector3.up * 0.5f, Quaternion.identity);
+        }
+
+        // 2. Aparecer enemigos pequeños
+        SpawnSmallEnemies();
+
+        // 3. Desaparecer el grande
+        // Nota: Si la animación de muerte es importante, destruimos en 2s. 
+        // Si quieres que desaparezca de golpe, usa 0.1s.
+        Destroy(gameObject, 0.5f);
+    }
+
+    void SpawnSmallEnemies()
+    {
+        if (smallEnemyPrefab == null) return;
+
+        for (int i = 0; i < amountOfSmallEnemies; i++)
+        {
+            // Creamos un pequeño desplazamiento para que no nazcan uno dentro de otro
+            Vector3 spawnOffset = new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f));
+
+            GameObject miniSlime = Instantiate(smallEnemyPrefab, transform.position + spawnOffset, Quaternion.identity);
+
+            // Si el mini-slime usa este mismo script, asegúrate de asignarle el player
+            EnemyLogics miniLogic = miniSlime.GetComponent<EnemyLogics>();
+            if (miniLogic != null) miniLogic.player = this.player;
+        }
     }
 }
