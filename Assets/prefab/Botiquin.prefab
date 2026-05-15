@@ -101,4 +101,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54c932fa7beba8f4e8d1db2d9d23505c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Botiquin
-  healAmount: 25
+  healAmount: 50
