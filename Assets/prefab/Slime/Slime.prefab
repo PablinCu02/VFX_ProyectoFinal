@@ -22,15 +22,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 194.23824
+      value: 189
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.6362742
+      value: 5.53
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 139.35
+      value: 229.05
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalRotation.w
@@ -158,17 +158,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyLogics
   player: {fileID: 0}
-  attackRange: 3.99
+  detectionRange: 30
+  attackRange: 8.54
+  patrolPoints: []
+  waitTimeAtPoint: 2
   health: 50
   damageColor: {r: 1, g: 0, b: 0, a: 1}
   flashDuration: 0.15
-  damageParticlesPrefab: {fileID: 0}
-  canDivide: 1
-  deathParticlesPrefab: {fileID: 5993083379056978728, guid: 16f07a8d819cd574abfe164a166ba967, type: 3}
-  smallEnemyPrefab: {fileID: 3116817908027901590}
-  amountOfSmallEnemies: 2
   damageToPlayer: 20
-  attackRate: 1
+  attackRate: 2
 --- !u!195 &1191067206786725463
 NavMeshAgent:
   m_ObjectHideFlags: 0
