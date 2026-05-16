@@ -15,14 +15,10 @@ public class EnemyLogics : MonoBehaviour
     public Color damageColor = Color.red;
     public float flashDuration = 0.15f;
 
-    [Header("Efectos de Daño (NUEVO)")]
-    public GameObject damageParticlesPrefab; // Partículas que saltan al recibir un golpe
-
     [Header("Efectos de Muerte (Gelatina)")]
-    public bool canDivide = true;          // ACTÍVALO en el grande, DESACTÍVALO en el pequeño
-    public GameObject deathParticlesPrefab; // El sistema de partículas de explosión
-    public GameObject smallEnemyPrefab;
-    public int amountOfSmallEnemies = 2;
+    public GameObject deathParticlesPrefab; // El sistema de partículas
+    public GameObject smallEnemyPrefab;    // El enemigo pequeño que nacerá
+    public int amountOfSmallEnemies = 2;    // Cuántos mini-slimes salen
 
     [Header("Ataque")]
     public float damageToPlayer = 20f;
@@ -32,7 +28,7 @@ public class EnemyLogics : MonoBehaviour
     private Renderer myRenderer;
     private Color originalColor;
     private bool isFlashing = false;
-    private bool isDead = false;
+    private bool isDead = false; // Nueva bandera para evitar bugs en la muerte
 
     void Start()
     {
@@ -79,13 +75,6 @@ public class EnemyLogics : MonoBehaviour
     {
         if (isDead) return;
         health -= amount;
-
-        // --- NUEVO: Instanciar partículas de daño en cada golpe ---
-        if (damageParticlesPrefab != null)
-        {
-            Instantiate(damageParticlesPrefab, transform.position + Vector3.up * 0.5f, Quaternion.identity);
-        }
-
         if (!isFlashing && myRenderer != null) StartCoroutine(FlashRed());
         if (health <= 0f) Die();
     }
@@ -105,18 +94,18 @@ public class EnemyLogics : MonoBehaviour
         anim.SetTrigger("Die");
         agent.enabled = false;
 
-        // Instanciar partículas de muerte
+        // 1. Instanciar partículas de gelatina
         if (deathParticlesPrefab != null)
         {
             Instantiate(deathParticlesPrefab, transform.position + Vector3.up * 0.5f, Quaternion.identity);
         }
 
-        // --- MODIFICADO: Solo se divide si la casilla está marcada ---
-        if (canDivide)
-        {
-            SpawnSmallEnemies();
-        }
+        // 2. Aparecer enemigos pequeños
+        SpawnSmallEnemies();
 
+        // 3. Desaparecer el grande
+        // Nota: Si la animación de muerte es importante, destruimos en 2s. 
+        // Si quieres que desaparezca de golpe, usa 0.1s.
         Destroy(gameObject, 0.5f);
     }
 
@@ -126,15 +115,14 @@ public class EnemyLogics : MonoBehaviour
 
         for (int i = 0; i < amountOfSmallEnemies; i++)
         {
+            // Creamos un pequeño desplazamiento para que no nazcan uno dentro de otro
             Vector3 spawnOffset = new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f));
+
             GameObject miniSlime = Instantiate(smallEnemyPrefab, transform.position + spawnOffset, Quaternion.identity);
 
+            // Si el mini-slime usa este mismo script, asegúrate de asignarle el player
             EnemyLogics miniLogic = miniSlime.GetComponent<EnemyLogics>();
-            if (miniLogic != null)
-            {
-                miniLogic.player = this.player;
-                miniLogic.canDivide = false; // Por seguridad, le decimos por código que no se divida
-            }
+            if (miniLogic != null) miniLogic.player = this.player;
         }
     }
 }
