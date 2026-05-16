@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 
+[RequireComponent(typeof(AudioSource))] // Esto obliga a que el objeto tenga un AudioSource
 public class EnemyLogics : MonoBehaviour
 {
     [Header("Configuración de AI")]
@@ -15,10 +16,19 @@ public class EnemyLogics : MonoBehaviour
     public Color damageColor = Color.red;
     public float flashDuration = 0.15f;
 
+    [Header("Efectos de Audio (NUEVO)")]
+    public AudioClip damageSound;  // Sonido al recibir un balazo/golpe
+    public AudioClip deathSound;   // Sonido asqueroso de explosión al morir
+    private AudioSource audioSource;
+
+    [Header("Efectos de Daño")]
+    public GameObject damageParticlesPrefab;
+
     [Header("Efectos de Muerte (Gelatina)")]
-    public GameObject deathParticlesPrefab; // El sistema de partículas
-    public GameObject smallEnemyPrefab;    // El enemigo pequeño que nacerá
-    public int amountOfSmallEnemies = 2;    // Cuántos mini-slimes salen
+    public bool canDivide = true;
+    public GameObject deathParticlesPrefab;
+    public GameObject smallEnemyPrefab;
+    public int amountOfSmallEnemies = 2;
 
     [Header("Ataque")]
     public float damageToPlayer = 20f;
@@ -28,13 +38,18 @@ public class EnemyLogics : MonoBehaviour
     private Renderer myRenderer;
     private Color originalColor;
     private bool isFlashing = false;
-    private bool isDead = false; // Nueva bandera para evitar bugs en la muerte
+    private bool isDead = false;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
         myRenderer = GetComponentInChildren<Renderer>();
+
+        // Obtener el componente de audio
+        audioSource = GetComponent<AudioSource>();
+        // Configuración inicial de audio para que sea 3D (se escuche según la distancia)
+        audioSource.spatialBlend = 1f;
 
         if (myRenderer != null) originalColor = myRenderer.material.color;
         if (player == null) player = GameObject.FindGameObjectWithTag("Player")?.transform;
@@ -75,6 +90,19 @@ public class EnemyLogics : MonoBehaviour
     {
         if (isDead) return;
         health -= amount;
+
+        // --- REPRODUCIR SONIDO DE DAÑO ---
+        if (damageSound != null && audioSource != null)
+        {
+            // PlayOneShot permite que si le disparas rápido, los sonidos se encimen de forma natural
+            audioSource.PlayOneShot(damageSound);
+        }
+
+        if (damageParticlesPrefab != null)
+        {
+            Instantiate(damageParticlesPrefab, transform.position + Vector3.up * 0.5f, Quaternion.identity);
+        }
+
         if (!isFlashing && myRenderer != null) StartCoroutine(FlashRed());
         if (health <= 0f) Die();
     }
@@ -94,19 +122,24 @@ public class EnemyLogics : MonoBehaviour
         anim.SetTrigger("Die");
         agent.enabled = false;
 
-        // 1. Instanciar partículas de gelatina
+        // --- REPRODUCIR SONIDO DE MUERTE ---
+        if (deathSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(deathSound);
+        }
+
         if (deathParticlesPrefab != null)
         {
             Instantiate(deathParticlesPrefab, transform.position + Vector3.up * 0.5f, Quaternion.identity);
         }
 
-        // 2. Aparecer enemigos pequeños
-        SpawnSmallEnemies();
+        if (canDivide)
+        {
+            SpawnSmallEnemies();
+        }
 
-        // 3. Desaparecer el grande
-        // Nota: Si la animación de muerte es importante, destruimos en 2s. 
-        // Si quieres que desaparezca de golpe, usa 0.1s.
-        Destroy(gameObject, 0.5f);
+        // Le damos 0.6 segundos para que se alcance a escuchar el sonido de muerte antes de borrar el objeto
+        Destroy(gameObject, 0f);
     }
 
     void SpawnSmallEnemies()
@@ -115,14 +148,15 @@ public class EnemyLogics : MonoBehaviour
 
         for (int i = 0; i < amountOfSmallEnemies; i++)
         {
-            // Creamos un pequeño desplazamiento para que no nazcan uno dentro de otro
             Vector3 spawnOffset = new Vector3(Random.Range(-0.5f, 0.5f), 0, Random.Range(-0.5f, 0.5f));
-
             GameObject miniSlime = Instantiate(smallEnemyPrefab, transform.position + spawnOffset, Quaternion.identity);
 
-            // Si el mini-slime usa este mismo script, asegúrate de asignarle el player
             EnemyLogics miniLogic = miniSlime.GetComponent<EnemyLogics>();
-            if (miniLogic != null) miniLogic.player = this.player;
+            if (miniLogic != null)
+            {
+                miniLogic.player = this.player;
+                miniLogic.canDivide = false;
+            }
         }
     }
 }
