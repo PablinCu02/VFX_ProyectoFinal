@@ -10,15 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.0218477
+      value: 1.5929532
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2.0218477
+      value: 1.5929532
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalScale.z
-      value: 2.0218477
+      value: 1.5929532
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalPosition.x
@@ -26,11 +26,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5.53
+      value: 5.9642
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 229.05
+      value: 229.02
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aa80c37dfe78f424d91cfea8cb62a3df, type: 3}
       propertyPath: m_LocalRotation.w
@@ -161,15 +161,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyLogics
   player: {fileID: 0}
+  detectionRange: 500
   attackRange: 3.99
-  health: 50
+  health: 49
   damageColor: {r: 1, g: 0, b: 0, a: 1}
   flashDuration: 0.15
   damageSound: {fileID: 0}
   deathSound: {fileID: 8300000, guid: b4b44289a81b2d640904d3870f19b6d0, type: 3}
   damageParticlesPrefab: {fileID: 0}
   canDivide: 1
-  deathParticlesPrefab: {fileID: 0}
+  deathParticlesPrefab: {fileID: 5204165053659551634, guid: 67b49a21d8266cc419f9e85028f3ba34, type: 3}
   smallEnemyPrefab: {fileID: 3636341198577497577, guid: 05830d4c25d047e44821af20af328af2, type: 3}
   amountOfSmallEnemies: 2
   damageToPlayer: 20
@@ -184,10 +185,10 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 7
   m_Acceleration: 8
   avoidancePriority: 50
-  m_AngularSpeed: 120
+  m_AngularSpeed: 113.84
   m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1

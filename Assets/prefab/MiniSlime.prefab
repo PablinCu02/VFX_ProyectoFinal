@@ -161,6 +161,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyLogics
   player: {fileID: 0}
+  detectionRange: 2000
   attackRange: 3.99
   health: 20
   damageColor: {r: 1, g: 0, b: 0, a: 1}

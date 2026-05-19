@@ -2,11 +2,12 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 
-[RequireComponent(typeof(AudioSource))] // Esto obliga a que el objeto tenga un AudioSource
+[RequireComponent(typeof(AudioSource))]
 public class EnemyLogics : MonoBehaviour
 {
     [Header("Configuración de AI")]
     public Transform player;
+    public float detectionRange = 6f;  // NUEVO: Distancia a la que te empieza a ver (ajústala en el Inspector)
     public float attackRange = 1.5f;
     private NavMeshAgent agent;
     private Animator anim;
@@ -16,9 +17,9 @@ public class EnemyLogics : MonoBehaviour
     public Color damageColor = Color.red;
     public float flashDuration = 0.15f;
 
-    [Header("Efectos de Audio (NUEVO)")]
-    public AudioClip damageSound;  // Sonido al recibir un balazo/golpe
-    public AudioClip deathSound;   // Sonido asqueroso de explosión al morir
+    [Header("Efectos de Audio")]
+    public AudioClip damageSound;
+    public AudioClip deathSound;
     private AudioSource audioSource;
 
     [Header("Efectos de Daño")]
@@ -39,28 +40,42 @@ public class EnemyLogics : MonoBehaviour
     private Color originalColor;
     private bool isFlashing = false;
     private bool isDead = false;
-
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
         myRenderer = GetComponentInChildren<Renderer>();
 
-        // Obtener el componente de audio
         audioSource = GetComponent<AudioSource>();
-        // Configuración inicial de audio para que sea 3D (se escuche según la distancia)
         audioSource.spatialBlend = 1f;
 
         if (myRenderer != null) originalColor = myRenderer.material.color;
-        if (player == null) player = GameObject.FindGameObjectWithTag("Player")?.transform;
+
+        // --- BÚSQUEDA AUTOMÁTICA CORREGIDA ---
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                player = playerObj.transform;
+                Debug.Log("¡Jugador encontrado automáticamente por el Slime!");
+            }
+            else
+            {
+                Debug.LogError("¡ALERTA! El Slime no pudo encontrar al jugador. Asegúrate de que tu personaje tenga la etiqueta 'Player' en el Inspector.");
+            }
+        }
     }
 
     void Update()
     {
-        if (isDead || agent == null || !agent.enabled || player == null) return;
+        if (isDead || agent == null || !agent.enabled || !agent.isOnNavMesh || player == null) return;
 
         float distance = Vector3.Distance(transform.position, player.position);
 
+        // --- MÁQUINA DE ESTADOS POR DISTANCIA ---
+
+        // 1. ESTADO: ATACAR (Estás muy cerca)
         if (distance <= attackRange)
         {
             agent.isStopped = true;
@@ -77,11 +92,19 @@ public class EnemyLogics : MonoBehaviour
                 }
             }
         }
-        else
+        // 2. ESTADO: PERSEGUIR (Estás en su rango de visión)
+        else if (distance <= detectionRange)
         {
             agent.isStopped = false;
             agent.SetDestination(player.position);
             anim.SetFloat("Speed", agent.velocity.magnitude);
+            anim.SetBool("isAttacking", false);
+        }
+        // 3. ESTADO: IDLE / ESPERA (Estás demasiado lejos para que te detecte)
+        else
+        {
+            agent.isStopped = true;
+            anim.SetFloat("Speed", 0f);
             anim.SetBool("isAttacking", false);
         }
     }
@@ -91,10 +114,8 @@ public class EnemyLogics : MonoBehaviour
         if (isDead) return;
         health -= amount;
 
-        // --- REPRODUCIR SONIDO DE DAÑO ---
         if (damageSound != null && audioSource != null)
         {
-            // PlayOneShot permite que si le disparas rápido, los sonidos se encimen de forma natural
             audioSource.PlayOneShot(damageSound);
         }
 
@@ -122,7 +143,6 @@ public class EnemyLogics : MonoBehaviour
         anim.SetTrigger("Die");
         agent.enabled = false;
 
-        // --- REPRODUCIR SONIDO DE MUERTE ---
         if (deathSound != null && audioSource != null)
         {
             audioSource.PlayOneShot(deathSound);
@@ -138,8 +158,7 @@ public class EnemyLogics : MonoBehaviour
             SpawnSmallEnemies();
         }
 
-        // Le damos 0.6 segundos para que se alcance a escuchar el sonido de muerte antes de borrar el objeto
-        Destroy(gameObject, 0f);
+        Destroy(gameObject, 0.5f);
     }
 
     void SpawnSmallEnemies()
