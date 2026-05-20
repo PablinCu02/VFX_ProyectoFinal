@@ -6,7 +6,6 @@ public class Bullet : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        // Este mensaje debe salir SIEMPRE que toques CUALQUIER cosa
         Debug.Log("LA BALA TOCÓ ALGO: " + other.name + " en la Layer: " + LayerMask.LayerToName(other.gameObject.layer));
 
         EnemyLogics enemy = other.GetComponent<EnemyLogics>();

@@ -5,8 +5,8 @@ public class Botiquin : MonoBehaviour
     [Header("Ajustes del Botiquín")]
     public float healAmount = 25f;
 
-    [Header("Audio (NUEVO)")]
-    public AudioClip healSound; // Sonido de curación (ej. un "gasp" de aire o efecto de jeringa)
+    [Header("Audio")]
+    public AudioClip healSound; // Sonido de curación 
 
     void OnTriggerEnter(Collider other)
     {
@@ -17,8 +17,6 @@ public class Botiquin : MonoBehaviour
             if (playerHealth != null && playerHealth.currentHealth < playerHealth.maxHealth)
             {
                 playerHealth.Heal(healAmount);
-
-                // --- REPRODUCIR AUDIO ANTES DE DESTRUIR ---
                 if (healSound != null)
                 {
                     AudioSource.PlayClipAtPoint(healSound, transform.position);

@@ -7,7 +7,7 @@ public class CameraLook : MonoBehaviour
     public float mouseSensitivity = 180f;
 
     public Transform playerBody;
-    float xRotation = 0; // Corregí el nombre de la variable (tenía una 't' de más)
+    float xRotation = 0;
 
     void Start()
     {
@@ -17,7 +17,7 @@ public class CameraLook : MonoBehaviour
 
     void Update()
     {
-        // CAMBIO CLAVE: Usamos GetAxisRaw para eliminar la aceleración/suavizado
+        // Usamos GetAxisRaw para eliminar la aceleración
         float mouseX = Input.GetAxisRaw("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxisRaw("Mouse Y") * mouseSensitivity * Time.deltaTime;
 

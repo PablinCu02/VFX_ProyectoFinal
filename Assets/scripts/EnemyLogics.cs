@@ -7,7 +7,7 @@ public class EnemyLogics : MonoBehaviour
 {
     [Header("Configuración de AI")]
     public Transform player;
-    public float detectionRange = 6f;  // NUEVO: Distancia a la que te empieza a ver (ajústala en el Inspector)
+    public float detectionRange = 6f;
     public float attackRange = 1.5f;
     private NavMeshAgent agent;
     private Animator anim;
@@ -51,7 +51,7 @@ public class EnemyLogics : MonoBehaviour
 
         if (myRenderer != null) originalColor = myRenderer.material.color;
 
-        // --- BÚSQUEDA AUTOMÁTICA CORREGIDA ---
+        // Busqueda automática del jugador si no se asignó en el Inspector
         if (player == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
@@ -73,9 +73,9 @@ public class EnemyLogics : MonoBehaviour
 
         float distance = Vector3.Distance(transform.position, player.position);
 
-        // --- MÁQUINA DE ESTADOS POR DISTANCIA ---
+        // Maquina de estados simple basada en la distancia al jugador:
 
-        // 1. ESTADO: ATACAR (Estás muy cerca)
+        // Jugador dentro del rango de ataque
         if (distance <= attackRange)
         {
             agent.isStopped = true;
@@ -92,7 +92,7 @@ public class EnemyLogics : MonoBehaviour
                 }
             }
         }
-        // 2. ESTADO: PERSEGUIR (Estás en su rango de visión)
+        // Jugador dentro del rango de detección pero fuera del rango de ataque
         else if (distance <= detectionRange)
         {
             agent.isStopped = false;
@@ -100,7 +100,7 @@ public class EnemyLogics : MonoBehaviour
             anim.SetFloat("Speed", agent.velocity.magnitude);
             anim.SetBool("isAttacking", false);
         }
-        // 3. ESTADO: IDLE / ESPERA (Estás demasiado lejos para que te detecte)
+        // Jugador fuera de ambos rangos
         else
         {
             agent.isStopped = true;

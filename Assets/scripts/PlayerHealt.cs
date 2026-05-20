@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-[RequireComponent(typeof(AudioSource))] // Asegura que el jugador tenga un AudioSource
+[RequireComponent(typeof(AudioSource))]
 public class PlayerHealth : MonoBehaviour
 {
     [Header("Ajustes de Vida")]
@@ -16,17 +16,15 @@ public class PlayerHealth : MonoBehaviour
     public float acidDamage = 20f;
 
     [Header("Efectos de Audio (NUEVO)")]
-    public AudioClip generalDamageSound; // Sonido genérico al recibir daño (ej. quejas, quejido del personaje)
-    public AudioClip acidDamageSound;    // Sonido específico de ácido (ej. quemadura, corrosión o líquido hirviendo)
+    public AudioClip generalDamageSound;
+    public AudioClip acidDamageSound;
     private AudioSource audioSource;
 
     void Start()
     {
         currentHealth = maxHealth;
-
-        // Configuración del AudioSource del jugador
         audioSource = GetComponent<AudioSource>();
-        audioSource.spatialBlend = 0f; // 0f significa sonido 2D (se escucha directo en los audífonos del jugador)
+        audioSource.spatialBlend = 0f;
     }
 
     public void Heal(float amount)
@@ -41,8 +39,6 @@ public class PlayerHealth : MonoBehaviour
         currentHealth -= damageAmount;
         Debug.Log("¡Daño! Vida restante: " + currentHealth);
 
-        // --- REPRODUCIR SONIDO DE DAÑO GENÉRICO ---
-        // Solo suena si no caímos en ácido, para que no se encimen los audios
         if (generalDamageSound != null && audioSource != null)
         {
             audioSource.PlayOneShot(generalDamageSound);
@@ -57,9 +53,14 @@ public class PlayerHealth : MonoBehaviour
 
     void Die()
     {
-        Debug.Log("¡El jugador ha muerto! Reiniciando nivel...");
-        Scene escenaActual = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(escenaActual.name);
+        Debug.Log("El jugador ha muerto");
+
+        // Liberamos y hacemos visible el cursor para poder usar los botones
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        // Cargamos la escena de GameOver
+        SceneManager.LoadScene("GameOver");
     }
 
     private void OnTriggerEnter(Collider other)
@@ -78,7 +79,6 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    // Función auxiliar para gestionar el sonido del ácido
     void PlayAcidSound()
     {
         if (acidDamageSound != null && audioSource != null)

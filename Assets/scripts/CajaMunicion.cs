@@ -6,7 +6,7 @@ public class CajaMunicion : MonoBehaviour
     public int ammoAmount = 10;
 
     [Header("Audio (NUEVO)")]
-    public AudioClip pickupSound; // Sonido de recarga/recogida (ej. un "click" metálico)
+    public AudioClip pickupSound; // Sonido de recarga
 
     void OnTriggerEnter(Collider other)
     {
@@ -17,8 +17,6 @@ public class CajaMunicion : MonoBehaviour
             if (gun != null && gun.currentAmmo < gun.maxAmmo)
             {
                 gun.AddAmmo(ammoAmount);
-
-                // --- REPRODUCIR AUDIO ANTES DE DESTRUIR ---
                 if (pickupSound != null)
                 {
                     AudioSource.PlayClipAtPoint(pickupSound, transform.position);

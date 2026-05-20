@@ -48,16 +48,16 @@ public class ProjectileGun : MonoBehaviour
             sonidoDisparo.Play(); // Reproducimos el sonido de disparo
         }
 
-        // 1. Creamos la bala en la posición y rotación del firePoint
+        // Creamos la bala en la posición y rotación del firePoint
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
 
-        // 2. Obtenemos su Rigidbody para darle fuerza
+        // Obtenemos su Rigidbody para darle fuerza
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
 
         // Le damos un impulso hacia adelante
         rb.AddForce(firePoint.forward * bulletForce, ForceMode.Impulse);
 
-        // 3. Destruimos la bala después de 5 segundos para no llenar la memoria
+        // 3Destruimos la bala después de 5 segundos para no llenar la memoria
         Destroy(bullet, 5f);
     }
     public void AddAmmo(int amount)

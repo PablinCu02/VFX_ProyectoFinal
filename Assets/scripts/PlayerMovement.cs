@@ -6,7 +6,7 @@ public class PlayerMovement : MonoBehaviour
     public Transform groundCheck;
     public LayerMask groundMask;
     public float speed = 12f;
-    public float gravity = -19.81f; // RECUERDA: Debe ser negativo
+    public float gravity = -19.81f;
     public float jumpHeight = 1f;
     public float sphereRadius = 0.4f;
 
@@ -15,24 +15,22 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        // 1. Protección de referencia
+        // Protección de referencia
         if (groundCheck == null || characterController == null)
         {
             Debug.LogError("¡Falta asignar el GroundCheck o el CharacterController en el Inspector!");
             return;
         }
 
-        // 2. Detección de suelo
+        // Detección de suelo
         isGrounded = Physics.CheckSphere(groundCheck.position, sphereRadius, groundMask);
 
-        // --- DEBUG PARA DETECTAR EL FALLO ---
+        // Debug para verificar la detección de suelo
         if (Input.GetButtonDown("Jump"))
         {
             if (!isGrounded) Debug.LogWarning("Intentaste saltar pero el script cree que NO estás tocando el suelo.");
             else Debug.Log("Saltando con éxito.");
         }
-        // ------------------------------------
-
         if (isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
@@ -47,7 +45,7 @@ public class PlayerMovement : MonoBehaviour
         // Acción de saltar
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
-            // Usamos Abs para evitar errores si pusiste la gravedad positiva por error
+            // Usamos Abs para evitar errores
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
 
@@ -55,7 +53,7 @@ public class PlayerMovement : MonoBehaviour
         characterController.Move(velocity * Time.deltaTime);
     }
 
-    // Esto dibujará una esfera roja/verde en tu ventana de Escena para que veas el sensor
+    // Metodo para visualizar la esfera de detección de suelo en el editor
     private void OnDrawGizmos()
     {
         if (groundCheck != null)
